@@ -3,92 +3,46 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SVRE Intelligent Brain — SVRE Groups</title>
-  <meta name="description" content="SVRE Groups — Intelligent assistant prototype: packaging & beverage manufacturing." />
+  <title>SVRE Intelligent Brain — SVRE Groups (On-device ML demo)</title>
+  <meta name="description" content="SVRE Groups — Intelligent assistant prototype with on-device ML (Naive Bayes) and local DB (IndexedDB). No external APIs." />
   <style>
-    :root{
-      --bg-1: #0f1720;
-      --bg-2: #0b1220;
-      --panel: rgba(255,255,255,0.06);
-      --glass: rgba(255,255,255,0.06);
-      --accent: #00d4ff;
-      --muted: #9aa4b2;
-      --text: #e6f0f6;
-      --radius: 14px;
-      --glass-blur: 10px;
-      --shadow: 0 8px 30px rgba(2,6,23,0.6);
-      --max-width: 1100px;
-    }
-
-    [data-theme="light"]{
-      --bg-1: #f7fbff;
-      --bg-2: #eaf5ff;
-      --panel: rgba(255,255,255,0.6);
-      --glass: rgba(255,255,255,0.6);
-      --accent: #0066cc;
-      --muted: #556270;
-      --text: #0b1220;
-      --shadow: 0 12px 40px rgba(10,30,50,0.08);
-    }
-
-    /* Reset */
+    :root{--bg-1:#0f1720;--bg-2:#0b1220;--panel:rgba(255,255,255,0.06);--glass:rgba(255,255,255,0.06);--accent:#00d4ff;--muted:#9aa4b2;--text:#e6f0f6;--radius:14px;--glass-blur:10px;--shadow:0 8px 30px rgba(2,6,23,0.6);--max-width:1100px}
+    [data-theme="light"]{--bg-1:#f7fbff;--bg-2:#eaf5ff;--panel:rgba(255,255,255,0.6);--glass:rgba(255,255,255,0.6);--accent:#0066cc;--muted:#556270;--text:#0b1220;--shadow:0 12px 40px rgba(10,30,50,0.08)}
     *{box-sizing:border-box;margin:0;padding:0}
     html,body,#app{height:100%}
-    body{
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: linear-gradient(135deg,var(--bg-1),var(--bg-2));
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;align-items:center;justify-content:center;padding:24px;
-    }
-
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));color:var(--text);-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;padding:24px}
     .frame{width:100%;max-width:var(--max-width);height:88vh;border-radius:18px;display:grid;grid-template-columns:320px 1fr;overflow:hidden;box-shadow:var(--shadow)}
-
-    /* Sidebar */
-    .sidebar{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:20px;backdrop-filter: blur(var(--glass-blur));border-right:1px solid rgba(255,255,255,0.04)}
+    .sidebar{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:20px;backdrop-filter:blur(var(--glass-blur));border-right:1px solid rgba(255,255,255,0.04);display:flex;flex-direction:column}
     .logo{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .logo .mark{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#0077ff);color:#001;background-clip:padding-box;font-weight:800;color:white;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
-    .logo .txt{font-weight:700}
+    .logo .mark{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#0077ff);font-weight:800;color:white;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
     .profile{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));padding:12px;border-radius:12px;margin-bottom:14px}
     .small{font-size:12px;color:var(--muted)}
-
     .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
     .btn{background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:var(--text);font-size:13px;cursor:pointer}
-    .btn:active{transform:translateY(1px)}
-
     .sidebar .footer{margin-top:auto;display:flex;flex-direction:column;gap:8px}
-
-    /* Main */
     .main{display:flex;flex-direction:column;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:0}
     .header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.03)}
     .title{display:flex;align-items:center;gap:12px}
-    .pulse{width:10px;height:10px;border-radius:50%;background: #4ade80;box-shadow:0 0 10px rgba(74,222,128,0.2)}
-
+    .pulse{width:10px;height:10px;border-radius:50%;background:#4ade80;box-shadow:0 0 10px rgba(74,222,128,0.2)}
     .thread{padding:18px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px}
     .msg{max-width:70%;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.45}
-    .assistant{align-self:flex-start;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-left:3px solid var(--accent);}
+    .assistant{align-self:flex-start;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-left:3px solid var(--accent)}
     .user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),#0077ff);color:#002;border-radius:12px 12px 8px 12px;font-weight:600}
-
     .input-area{padding:16px;border-top:1px solid rgba(255,255,255,0.03);display:flex;gap:12px;align-items:flex-end}
     .input{flex:1;background:var(--panel);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:12px;color:var(--text);min-height:44px;resize:none}
     .send{background:var(--accent);border:none;color:#002;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
-
-    /* Modal / Analytics */
     .modal{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
     .modal.open{display:flex}
-    .modal-card{background:var(--glass);backdrop-filter: blur(12px);padding:18px;border-radius:12px;max-width:760px;width:96%}
-
-    /* Responsive */
-    @media (max-width:900px){.frame{grid-template-columns:1fr}};
-    @media (max-width:600px){body{padding:12px}.frame{height:95vh;border-radius:12px}.sidebar{display:none}}
-
-    /* Subtle Animations */
-    .msg{transform:translateY(8px);opacity:0;animation:pop .28s ease forwards}
-    @keyframes pop{to{transform:none;opacity:1}}
-
-    /* Accessibility focus */
+    .modal-card{background:var(--glass);backdrop-filter: blur(12px);padding:18px;border-radius:12px;max-width:960px;width:96%;max-height:84vh;overflow:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px}
+    .muted{color:var(--muted);font-size:13px}
+    @media (max-width:900px){.frame{grid-template-columns:1fr}};@media (max-width:600px){body{padding:12px}.frame{height:95vh;border-radius:12px}.sidebar{display:none}}
+    .msg{transform:translateY(8px);opacity:0;animation:pop .28s ease forwards}@keyframes pop{to{transform:none;opacity:1}}
     .btn:focus,.send:focus,.input:focus{outline:2px solid rgba(0,0,0,0.06);box-shadow:0 0 0 4px rgba(0,212,255,0.06)}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .chip{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);font-size:13px}
+    .danger{background:linear-gradient(135deg,#ff5f6d,#ffc371);color:#1b1b1b}
   </style>
 </head>
 <body data-theme="dark">
@@ -104,17 +58,23 @@
 
         <div class="small" style="margin-top:8px">Quick Topics</div>
         <div class="quick-grid" style="margin-top:8px">
-          <button class="btn" data-topic="company">🏢 Company</button>
+          <button class="btn" data-topic="about">🏢 Company</button>
           <button class="btn" data-topic="capacity">⚡ Capacity</button>
           <button class="btn" data-topic="products">📦 Products</button>
           <button class="btn" data-topic="sustainability">♻️ Green</button>
         </div>
 
+        <div class="sidebar-info small" style="margin-top:12px">On-device ML • IndexedDB storage • No external APIs</div>
+
         <div class="footer" style="margin-top:18px">
-          <button class="btn" id="openAnalytics">📊 Analytics</button>
-          <div style="display:flex;gap:8px;margin-top:6px">
-            <button class="btn" id="themeToggle">Toggle Theme</button>
-            <button class="btn" id="clearBtn">Clear</button>
+          <div class="controls">
+            <button class="btn" id="openModel">🧠 Model Inspector</button>
+            <button class="btn" id="themeToggle">🌓 Theme</button>
+            <button class="btn danger" id="exportBtn">⬇️ Export DB</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn" id="trainBtn">Train Model</button>
+            <button class="btn" id="resetModel">Reset Model</button>
           </div>
         </div>
       </aside>
@@ -122,117 +82,320 @@
       <main class="main">
         <header class="header">
           <div class="title"><div class="pulse" aria-hidden="true"></div><div style="font-weight:700">SVRE Intelligent Brain</div></div>
-          <div class="small">Ready • Offline prototype</div>
+          <div class="small">Prototype — fully client-side ML & DB</div>
         </header>
 
         <section class="thread" id="thread" aria-live="polite" aria-atomic="false"></section>
 
         <div class="input-area">
-          <textarea id="input" class="input" placeholder="Ask me anything about SVRE Groups... (Enter to send, Shift+Enter for newline)" rows="1" aria-label="Message input"></textarea>
+          <textarea id="input" class="input" placeholder="Ask about SVRE — Enter to send, Shift+Enter newline" rows="1" aria-label="Message input"></textarea>
           <button class="send" id="sendBtn">Send</button>
         </div>
       </main>
     </div>
 
-    <div class="modal" id="analytics" role="dialog" aria-modal="true">
+    <div class="modal" id="modelModal" role="dialog" aria-modal="true">
       <div class="modal-card">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:800;color:var(--accent)">SVRE Brain Analytics</div>
-          <button class="btn" id="closeAnalytics">Close</button>
+          <div style="font-weight:800;color:var(--accent)">On-device ML — Model Inspector</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn" id="importBtn">⬆️ Import DB</button>
+            <button class="btn" id="closeModel">Close</button>
+          </div>
         </div>
-        <div style="margin-top:12px" id="analyticsContent"></div>
+        <div style="margin-top:12px" id="modelContent"></div>
       </div>
     </div>
   </div>
 
   <script>
-    // Keep the SVRE knowledge object from main branch integrated here
+    // ===================== IndexedDB Helper =====================
+    const DB_NAME = 'svreBrainDB';
+    const DB_VERSION = 1;
+    const STORE_MESSAGES = 'messages';
+    const STORE_EXAMPLES = 'examples';
+    const STORE_MODEL = 'model';
+
+    function openDB(){
+      return new Promise((resolve,reject)=>{
+        const req = indexedDB.open(DB_NAME,DB_VERSION);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if(!db.objectStoreNames.contains(STORE_MESSAGES)) db.createObjectStore(STORE_MESSAGES,{keyPath:'id'});
+          if(!db.objectStoreNames.contains(STORE_EXAMPLES)) db.createObjectStore(STORE_EXAMPLES,{keyPath:'id'});
+          if(!db.objectStoreNames.contains(STORE_MODEL)) db.createObjectStore(STORE_MODEL,{keyPath:'id'});
+        };
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    async function put(store, obj){ const db = await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(obj); tx.oncomplete=()=>res(obj); tx.onerror=()=>rej(tx.error);} )}
+    async function getAll(store){ const db=await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction(store,'readonly'); const req=tx.objectStore(store).getAll(); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error);})}
+    async function clearStore(store){const db=await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=()=>res(); tx.onerror=()=>rej(); })}
+
+    // ===================== Simple Naive Bayes Classifier =====================
+    class NaiveBayes {
+      constructor(){
+        this.vocab = new Map(); // token -> count
+        this.labelCounts = {};  // label -> docs
+        this.tokenCounts = {};  // label -> {token:count}
+        this.totalDocs = 0;
+      }
+
+      tokenize(text){ return text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean); }
+
+      train(label, text){
+        const tokens = this.tokenize(text);
+        this.totalDocs += 1;
+        this.labelCounts[label] = (this.labelCounts[label]||0)+1;
+        this.tokenCounts[label] = this.tokenCounts[label] || {};
+        for(const t of tokens){
+          this.vocab.set(t,(this.vocab.get(t)||0)+1);
+          this.tokenCounts[label][t] = (this.tokenCounts[label][t]||0)+1;
+        }
+      }
+
+      predict(text){
+        const tokens = this.tokenize(text);
+        const labels = Object.keys(this.labelCounts);
+        if(labels.length===0) return {label:'',score:0};
+        let bestLabel = labels[0]; let bestScore = -Infinity;
+        for(const label of labels){
+          // use log-probabilities with Laplace smoothing
+          let score = Math.log((this.labelCounts[label]+1)/(this.totalDocs+labels.length));
+          const denom = (Object.values(this.tokenCounts[label]||{}).reduce((a,b)=>a+b,0) + this.vocab.size + 1);
+          for(const t of tokens){
+            const count = (this.tokenCounts[label] && this.tokenCounts[label][t]) || 0;
+            score += Math.log((count + 1) / denom);
+          }
+          if(score > bestScore){ bestScore = score; bestLabel = label; }
+        }
+        // rough confidence mapping
+        const confidence = 1 - (1/(1+Math.exp(bestScore))); // sigmoid-ish
+        return {label:bestLabel,score:bestScore,confidence:confidence};
+      }
+
+      export(){
+        return {
+          vocab: Array.from(this.vocab.entries()),
+          labelCounts: this.labelCounts,
+          tokenCounts: this.tokenCounts,
+          totalDocs: this.totalDocs
+        };
+      }
+
+      import(obj){
+        this.vocab = new Map(obj.vocab || []);
+        this.labelCounts = obj.labelCounts || {};
+        this.tokenCounts = obj.tokenCounts || {};
+        this.totalDocs = obj.totalDocs || 0;
+      }
+    }
+
+    // ===================== App logic =====================
+    const thread = document.getElementById('thread');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const openModel = document.getElementById('openModel');
+    const modelModal = document.getElementById('modelModal');
+    const modelContent = document.getElementById('modelContent');
+    const closeModel = document.getElementById('closeModel');
+    const trainBtn = document.getElementById('trainBtn');
+    const resetModelBtn = document.getElementById('resetModel');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+
+    const model = new NaiveBayes();
+
     const SVRE = {
-      about:{name:"SVRE Groups",tagline:"Packaging & Beverage Solutions",founded:2018,headquarters:"Hyderabad, Telangana, India",email:"contact@svregroups.com",cin:"U74999TG2018PTC125768"},
-      company:{overview:"SVRE Groups is a leading water bottle and beverage packaging manufacturer based in Hyderabad, India.",revenue:"₹53.6 Crores (FY 2025)",employees:"155+"},
-      products:{bottling:{lines:3,capacity:"50,000+ units per day"}},
-      contact:{email:"contact@svregroups.com",address:"Flat No.402, A Block, Sri Sai Pragathi Pride, Habsiguda, Hyderabad-500007"}
+      about: {name: 'SVRE Groups', founded:2018, overview:'Leading packaging & beverage co-packer in Telangana, India.'},
+      products: {lines:3,capacity:'50,000+ units/day'},
+      contact: {email:'contact@svregroups.com',address:'Flat No.402, A Block, Sri Sai Pragathi Pride, Habsiguda, Hyderabad-500007'}
     };
 
-    // Lightweight memory & response system (keeps behaviour from main branch)
-    class Memory {
-      constructor(){this.history = JSON.parse(localStorage.getItem('svre_history')||'[]')}
-      push(msg){this.history.push(msg);this._save()}
-      _save(){localStorage.setItem('svre_history',JSON.stringify(this.history.slice(-200)))}
-      clear(){this.history=[];this._save()}
+    // utilities
+    function addMessage(text, role='assistant'){ const el=document.createElement('div'); el.className='msg '+(role==='user'?'user':'assistant'); el.textContent=text; thread.appendChild(el); thread.scrollTop = thread.scrollHeight; }
+
+    // Response generation: first use ML classifier, then templates, then fallback
+    function generateReply(userText){
+      const p = model.predict(userText);
+      if(p.label && p.confidence > 0.25){ // threshold
+        // template responses per label
+        switch(p.label){
+          case 'company': return `📊 ${SVRE.about.name} — Founded ${SVRE.about.founded}. ${SVRE.about.overview} (confidence ${Math.round(p.confidence*100)}%)`;
+          case 'products': return `📦 Products: ${SVRE.products.lines} PET bottling lines. Capacity: ${SVRE.products.capacity} (confidence ${Math.round(p.confidence*100)}%)`;
+          case 'capacity': return `⚡ Capacity: ${SVRE.products.capacity}. Typical lead time: 2-4 weeks. (confidence ${Math.round(p.confidence*100)}%)`;
+          case 'pricing': return `💰 Pricing: Volume-based. For a quote, email ${SVRE.contact.email} (confidence ${Math.round(p.confidence*100)}%)`;
+          case 'contact': return `📞 Contact: ${SVRE.contact.email} — ${SVRE.contact.address} (confidence ${Math.round(p.confidence*100)}%)`;
+          case 'sustainability': return `♻️ Sustainability: 100% recyclable PET focus, waste minimization programs, green goals. (confidence ${Math.round(p.confidence*100)}%)`;
+          default: return `✨ I can help with company info, products, capacity, pricing and contact details. (predicted: ${p.label})`;
+        }
+      }
+      // fallback rule-based
+      const t = userText.toLowerCase();
+      if(/about|who|founded|history/.test(t)) return `📊 ${SVRE.about.name} — Founded ${SVRE.about.founded}. ${SVRE.about.overview}`;
+      if(/product|bottle|bottling|packaging/.test(t)) return `📦 Products: ${SVRE.products.lines} PET bottling lines — Capacity: ${SVRE.products.capacity}`;
+      if(/capacity|production|units|daily/.test(t)) return `⚡ Production capacity: ${SVRE.products.capacity}. Lead time typically 2-4 weeks.`;
+      if(/price|cost|quote/.test(t)) return `💰 Pricing: Volume-based. For quotes, contact ${SVRE.contact.email}`;
+      if(/contact|email|address/.test(t)) return `📞 Contact: ${SVRE.contact.email} — Address: ${SVRE.contact.address}`;
+      return `✨ Sorry, I don't understand that yet. You can add it as a training example in the Model Inspector.`;
     }
 
-    const memory = new Memory();
-    const thread = document.getElementById('thread');
-    const input = document.getElementById('input');
-    const sendBtn = document.getElementById('sendBtn');
+    // Persist messages to IndexedDB
+    async function saveMessage(role,text){
+      const id = 'm-'+Date.now()+'-'+Math.floor(Math.random()*1000);
+      await put(STORE_MESSAGES,{id,role,text,timestamp:new Date().toISOString()});
+    }
 
-    function addMessage(text,role='assistant'){
-      const el = document.createElement('div');el.className='msg '+(role==='user'?'user':'assistant');el.textContent = text;thread.appendChild(el);thread.scrollTop = thread.scrollHeight - thread.clientHeight;}
-
-    // simple intent matching (keeps many intents from original file)
-    function intentOf(text){const t=text.toLowerCase();if(/about|who|profile|founded|history/.test(t))return 'company';if(/product|bottle|bottling|packaging/.test(t))return 'products';if(/capacity|production|daily|units/.test(t))return 'capacity';if(/price|cost|quote/.test(t))return 'pricing';if(/contact|email|address/.test(t))return 'contact';return 'general';}
-
-    function generateReply(text){const intent=intentOf(text);switch(intent){
-      case 'company':return `📊 ${SVRE.about.name} — Established ${SVRE.about.founded}. ${SVRE.company.overview}`;
-      case 'products':return `📦 Products: ${SVRE.products.bottling.lines} PET bottling lines — Capacity: ${SVRE.products.bottling.capacity}`;
-      case 'capacity':return `⚡ Production capacity: ${SVRE.products.bottling.capacity}. Lead time typically 2-4 weeks.`;
-      case 'pricing':return `💰 Pricing: Volume-based. For quotes, contact ${SVRE.contact.email}`;
-      case 'contact':return `📞 Contact: ${SVRE.contact.email} — Address: ${SVRE.contact.address}`;
-      default: return `✨ I can help with company info, products, capacity, pricing and contact details. Try: "Tell me about SVRE"`;
-    }}
-
-    // load history
-    (function load(){memory.history.forEach(m=>addMessage(m.text,m.role))})();
-
-    function userSend(){const txt = input.value.trim();if(!txt) return;addMessage(txt,'user');memory.push({role:'user',text:txt});input.value='';
-      // bot thinking placeholder
-      const thinking = '…';addMessage(thinking,'assistant');
-      setTimeout(()=>{
+    async function userSend(){ const txt = inputEl.value.trim(); if(!txt) return; addMessage(txt,'user'); await saveMessage('user',txt); inputEl.value='';
+      // quick thinking indicator
+      addMessage('…','assistant');
+      setTimeout(async ()=>{
         // replace last assistant message
-        const last = Array.from(thread.querySelectorAll('.assistant')).pop();
+        const assistantMessages = thread.querySelectorAll('.assistant');
+        const last = assistantMessages[assistantMessages.length-1];
         const reply = generateReply(txt);
-        last.textContent = reply;memory.push({role:'assistant',text:reply});
-      },350);
+        last.textContent = reply;
+        await saveMessage('assistant',reply);
+        // store as potential training example (user may label later)
+      }, 300);
     }
 
-    sendBtn.addEventListener('click',userSend);
-    input.addEventListener('keydown', (e)=>{if(e.key==='Enter' && !e.shiftKey){e.preventDefault();userSend()}});
+    sendBtn.addEventListener('click', userSend);
+    inputEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); userSend(); } });
 
-    // quick topic buttons
-    document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',(()=>{input.value = b.getAttribute('data-topic');userSend();})))
+    // Quick topic buttons
+    document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click', ()=>{ inputEl.value = b.getAttribute('data-topic'); userSend(); }));
 
-    // analytics modal
-    const analytics = document.getElementById('analytics');
-    document.getElementById('openAnalytics').addEventListener('click',()=>{
-      document.getElementById('analyticsContent').textContent = `Messages: ${memory.history.length}`;analytics.classList.add('open');
-    });
-    document.getElementById('closeAnalytics').addEventListener('click',()=>analytics.classList.remove('open'));
-
-    // theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click',()=>{
-      const el = document.documentElement;
-      const next = el.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      el.setAttribute('data-theme', next);
-      localStorage.setItem('svre_theme', next);
-    });
-    // restore theme
-    (function(){const t=localStorage.getItem('svre_theme')||'dark';document.documentElement.setAttribute('data-theme',t)})();
-
-    // clear storage
-    document.getElementById('clearBtn').addEventListener('click',(()=>{memory.clear();thread.innerHTML='';addMessage('🧠 Knowledge cleared (session).');}))
-
-    // Accessibility: focus input on load
-    input.focus();
-
-    // Expose a small function to download HTML for quick preview (optional)
-    function previewURL(){
-      return `https://raw.githack.com/svreadmin/Chatbot/copilot/redesign-ui/SVRE-Intelligence-With-Logo.html`;
+    // ================= Model training & inspection =================
+    async function trainFromExamples(){
+      const examples = await getAll(STORE_EXAMPLES);
+      // reset model
+      model.vocab = new Map(); model.labelCounts={}; model.tokenCounts={}; model.totalDocs=0;
+      for(const ex of examples){ model.train(ex.label, ex.text); }
+      // persist model snapshot
+      await put(STORE_MODEL, {id:'nb-model', snapshot: model.export(), trainedAt: new Date().toISOString()});
+      return examples.length;
     }
 
-    // Save current content before unload
-    window.addEventListener('beforeunload',(()=>memory._save()));
+    async function exportDB(){
+      const msgs = await getAll(STORE_MESSAGES);
+      const examples = await getAll(STORE_EXAMPLES);
+      const modelObj = await getAll(STORE_MODEL);
+      const payload = {messages:msgs, examples:examples, model:modelObj};
+      const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='svre_db_export.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    exportBtn.addEventListener('click', exportDB);
+
+    async function importDB(){
+      const input = document.createElement('input'); input.type='file'; input.accept='application/json';
+      input.onchange = async e => {
+        const file = e.target.files[0]; if(!file) return; const txt = await file.text();
+        try{
+          const data = JSON.parse(txt);
+          await clearStore(STORE_MESSAGES); await clearStore(STORE_EXAMPLES); await clearStore(STORE_MODEL);
+          for(const m of (data.messages||[])) await put(STORE_MESSAGES, m);
+          for(const ex of (data.examples||[])) await put(STORE_EXAMPLES, ex);
+          for(const mo of (data.model||[])) await put(STORE_MODEL, mo);
+          alert('Import complete.');
+        }catch(err){ alert('Import failed: '+err.message); }
+      };
+      input.click();
+    }
+
+    importBtn.addEventListener('click', importDB);
+
+    closeModel.addEventListener('click', ()=>modelModal.classList.remove('open'));
+    openModel.addEventListener('click', async ()=>{
+      modelModal.classList.add('open'); await renderModelInspector();
+    });
+
+    async function renderModelInspector(){
+      const examples = await getAll(STORE_EXAMPLES);
+      const messages = await getAll(STORE_MESSAGES);
+      const modelStore = await getAll(STORE_MODEL);
+      const modelSnapshot = (modelStore[0] && modelStore[0].snapshot) || model.export();
+      // build UI
+      modelContent.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+          <div class="chip">Messages: ${messages.length}</div>
+          <div class="chip">Examples: ${examples.length}</div>
+          <div class="chip">Vocab: ${modelSnapshot.vocab?modelSnapshot.vocab.length:0}</div>
+          <div class="chip">Labels: ${Object.keys(modelSnapshot.labelCounts||{}).length}</div>
+        </div>
+        <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <h4 class="muted">Training Examples</h4>
+            <table><thead><tr><th>Label</th><th>Text</th></tr></thead><tbody>
+              ${examples.map(e=>`<tr><td>${e.label}</td><td>${escapeHtml(e.text)}</td></tr>`).join('')}
+            </tbody></table>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn" id="addExampleBtn">➕ Add Example</button>
+              <button class="btn" id="clearExamples">🧹 Clear Examples</button>
+            </div>
+          </div>
+          <div>
+            <h4 class="muted">Model Snapshot</h4>
+            <pre style="background:rgba(0,0,0,0.04);padding:8px;border-radius:8px;max-height:280px;overflow:auto">${escapeHtml(JSON.stringify(modelSnapshot,null,2))}</pre>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="trainNow">Train Now</button>
+          <button class="btn" id="saveModel">Save Model</button>
+        </div>
+      `;
+
+      document.getElementById('addExampleBtn').addEventListener('click', ()=>{
+        const label = prompt('Label for example (e.g. company, products, capacity, pricing, contact, sustainability):');
+        const text = prompt('Example user text:');
+        if(label && text){ put(STORE_EXAMPLES, {id:'ex-'+Date.now()+'-'+Math.floor(Math.random()*1000), label, text}); renderModelInspector(); }
+      });
+
+      document.getElementById('clearExamples').addEventListener('click', async ()=>{ if(confirm('Clear all training examples?')){ await clearStore(STORE_EXAMPLES); await renderModelInspector(); }});
+
+      document.getElementById('trainNow').addEventListener('click', async ()=>{ const count = await trainFromExamples(); alert('Trained on '+count+' examples.'); await renderModelInspector(); });
+      document.getElementById('saveModel').addEventListener('click', async ()=>{ await put(STORE_MODEL, {id:'nb-model', snapshot: model.export(), trainedAt:new Date().toISOString()}); alert('Model saved to DB.'); await renderModelInspector(); });
+    }
+
+    trainBtn.addEventListener('click', async ()=>{ const n = await trainFromExamples(); alert('Trained on '+n+' examples.'); });
+    resetModelBtn.addEventListener('click', async ()=>{ if(confirm('Reset model and examples?')){ await clearStore(STORE_EXAMPLES); await clearStore(STORE_MODEL); model.vocab=new Map(); model.labelCounts={}; model.tokenCounts={}; model.totalDocs=0; alert('Model reset.'); } });
+
+    // small helper to escape html
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // load existing model snapshot if any
+    (async ()=>{
+      try{
+        const modelStore = await getAll(STORE_MODEL);
+        if(modelStore && modelStore.length){ model.import(modelStore[0].snapshot); }
+        const messages = await getAll(STORE_MESSAGES);
+        // render messages
+        if(messages && messages.length){ messages.sort((a,b)=> new Date(a.timestamp)-new Date(b.timestamp)); for(const m of messages) addMessage(m.text,m.role); }
+      }catch(err){ console.warn('DB not ready',err); }
+    })();
+
+    // saveMessage for initial messages
+    async function putInitialIfEmpty(){ const msgs = await getAll(STORE_MESSAGES); if(msgs.length===0){ await put(STORE_MESSAGES,{id:'welcome-1',role:'assistant',text:'🧠 Welcome to the SVRE Intelligent Brain (on-device ML demo). Try asking about company, products, capacity, pricing, or contact.' ,timestamp:new Date().toISOString()}); location.reload(); }}
+    putInitialIfEmpty().catch(()=>{});
+
+    // allow export/import via keyboard: Ctrl+E export
+    window.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='e'){ e.preventDefault(); exportDB(); } });
+
+    // utility to save any assistant/user messages created via UI actions
+    async function recordExample(label, text){ await put(STORE_EXAMPLES,{id:'ex-'+Date.now()+'-'+Math.floor(Math.random()*1000), label, text}); }
+
+    // expose preview URL (useful for QA)
+    function previewURL(){ return `https://raw.githack.com/svreadmin/Chatbot/copilot/redesign-ui/SVRE-Intelligence-With-Logo.html`; }
+
+    // accessibility: focus
+    inputEl.focus();
+
+    // small note for developers: this design keeps everything client-side to demo the flow.
+    // To connect to a real backend later, replace IndexedDB ops with fetch() to your server endpoints and move the ML to a server-side pipeline or use WebAssembly/TF.js models.
   </script>
 </body>
 </html>
