@@ -1,1176 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SVRE Intelligent Brain - AI Assistant</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SVRE Intelligent Brain — SVRE Groups</title>
+  <meta name="description" content="SVRE Groups — Intelligent assistant prototype: packaging & beverage manufacturing." />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-      background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-      min-height: 100vh;
-      color: #e0e0e0;
-      overflow: hidden;
+    :root{
+      --bg-1: #0f1720;
+      --bg-2: #0b1220;
+      --panel: rgba(255,255,255,0.06);
+      --glass: rgba(255,255,255,0.06);
+      --accent: #00d4ff;
+      --muted: #9aa4b2;
+      --text: #e6f0f6;
+      --radius: 14px;
+      --glass-blur: 10px;
+      --shadow: 0 8px 30px rgba(2,6,23,0.6);
+      --max-width: 1100px;
     }
 
-    .app-container {
-      display: flex;
-      height: 100vh;
-      gap: 0;
+    [data-theme="light"]{
+      --bg-1: #f7fbff;
+      --bg-2: #eaf5ff;
+      --panel: rgba(255,255,255,0.6);
+      --glass: rgba(255,255,255,0.6);
+      --accent: #0066cc;
+      --muted: #556270;
+      --text: #0b1220;
+      --shadow: 0 12px 40px rgba(10,30,50,0.08);
     }
 
-    /* ========== SIDEBAR ========== */
-    .context-panel {
-      width: 320px;
-      background: #0d0d0d;
-      border-right: 1px solid #333;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      box-shadow: inset -1px 0 0 rgba(0, 212, 255, 0.1);
+    /* Reset */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body,#app{height:100%}
+    body{
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(135deg,var(--bg-1),var(--bg-2));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;align-items:center;justify-content:center;padding:24px;
     }
 
-    .logo-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-    }
+    .frame{width:100%;max-width:var(--max-width);height:88vh;border-radius:18px;display:grid;grid-template-columns:320px 1fr;overflow:hidden;box-shadow:var(--shadow)}
 
-    .logo-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: 900;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-    }
+    /* Sidebar */
+    .sidebar{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:20px;backdrop-filter: blur(var(--glass-blur));border-right:1px solid rgba(255,255,255,0.04)}
+    .logo{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .logo .mark{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#0077ff);color:#001;background-clip:padding-box;font-weight:800;color:white;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+    .logo .txt{font-weight:700}
+    .profile{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));padding:12px;border-radius:12px;margin-bottom:14px}
+    .small{font-size:12px;color:var(--muted)}
 
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-    }
+    .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .btn{background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:var(--text);font-size:13px;cursor:pointer}
+    .btn:active{transform:translateY(1px)}
 
-    .logo-text-main {
-      font-size: 14px;
-      font-weight: 800;
-      color: #00d4ff;
-      letter-spacing: 1px;
-    }
+    .sidebar .footer{margin-top:auto;display:flex;flex-direction:column;gap:8px}
 
-    .logo-text-sub {
-      font-size: 10px;
-      color: #666;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
+    /* Main */
+    .main{display:flex;flex-direction:column;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:0}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .title{display:flex;align-items:center;gap:12px}
+    .pulse{width:10px;height:10px;border-radius:50%;background: #4ade80;box-shadow:0 0 10px rgba(74,222,128,0.2)}
 
-    .profile-card {
-      background: rgba(0, 212, 255, 0.05);
-      border: 1px solid rgba(0, 212, 255, 0.2);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 20px;
-    }
+    .thread{padding:18px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+    .msg{max-width:70%;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.45}
+    .assistant{align-self:flex-start;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-left:3px solid var(--accent);}
+    .user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),#0077ff);color:#002;border-radius:12px 12px 8px 12px;font-weight:600}
 
-    .profile-card h3 {
-      font-size: 12px;
-      text-transform: uppercase;
-      color: #00d4ff;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
+    .input-area{padding:16px;border-top:1px solid rgba(255,255,255,0.03);display:flex;gap:12px;align-items:flex-end}
+    .input{flex:1;background:var(--panel);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:12px;color:var(--text);min-height:44px;resize:none}
+    .send{background:var(--accent);border:none;color:#002;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
 
-    .profile-info {
-      font-size: 13px;
-      color: #aaa;
-      line-height: 1.6;
-    }
+    /* Modal / Analytics */
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
+    .modal.open{display:flex}
+    .modal-card{background:var(--glass);backdrop-filter: blur(12px);padding:18px;border-radius:12px;max-width:760px;width:96%}
 
-    .profile-info strong { color: #e0e0e0; }
+    /* Responsive */
+    @media (max-width:900px){.frame{grid-template-columns:1fr}};
+    @media (max-width:600px){body{padding:12px}.frame{height:95vh;border-radius:12px}.sidebar{display:none}}
 
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #333, transparent);
-      margin: 16px 0;
-    }
+    /* Subtle Animations */
+    .msg{transform:translateY(8px);opacity:0;animation:pop .28s ease forwards}
+    @keyframes pop{to{transform:none;opacity:1}}
 
-    .section-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #666;
-      letter-spacing: 1px;
-      margin: 16px 0 10px 0;
-    }
-
-    .quick-stat {
-      background: #1a1a1a;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 12px;
-      border-left: 2px solid #00d4ff;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .quick-stat-label { color: #aaa; }
-    .quick-stat-value { color: #00d4ff; font-weight: 600; }
-
-    .admin-section {
-      margin-top: auto;
-      padding-top: 16px;
-      border-top: 1px solid #333;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .admin-btn {
-      width: 100%;
-      background: #333;
-      border: none;
-      color: #aaa;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 200ms ease;
-      text-align: left;
-    }
-
-    .admin-btn:hover {
-      background: rgba(0, 212, 255, 0.1);
-      color: #00d4ff;
-    }
-
-    /* ========== MAIN CHAT ========== */
-    .chat-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: #1a1a1a;
-    }
-
-    .chat-header {
-      background: linear-gradient(90deg, rgba(0, 212, 255, 0.05) 0%, transparent 100%);
-      padding: 16px 24px;
-      border-bottom: 1px solid #333;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .status-pulse {
-      width: 8px;
-      height: 8px;
-      background: #00ff00;
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .chat-title {
-      font-size: 14px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #00d4ff;
-    }
-
-    .mode-selector {
-      background: #252525;
-      border: 1px solid #333;
-      color: #aaa;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 200ms ease;
-    }
-
-    .mode-selector:hover {
-      border-color: #00d4ff;
-      background: rgba(0, 212, 255, 0.05);
-    }
-
-    /* ========== MESSAGES ========== */
-    .messages-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .message {
-      display: flex;
-      animation: slideIn 300ms ease forwards;
-      opacity: 0;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .message.user-msg { justify-content: flex-end; }
-
-    .msg-bubble {
-      max-width: 65%;
-      padding: 12px 16px;
-      border-radius: 14px;
-      line-height: 1.6;
-      word-wrap: break-word;
-      font-size: 14px;
-      white-space: pre-wrap;
-    }
-
-    .message.user-msg .msg-bubble {
-      background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-      color: #000;
-      border-radius: 14px 0 14px 14px;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
-    }
-
-    .message.assistant-msg .msg-bubble {
-      background: #252525;
-      color: #e0e0e0;
-      border-radius: 0 14px 14px 14px;
-      border-left: 3px solid #00d4ff;
-    }
-
-    .quality-badge {
-      display: inline-block;
-      font-size: 10px;
-      padding: 2px 6px;
-      background: rgba(0, 212, 255, 0.1);
-      color: #00d4ff;
-      border-radius: 3px;
-      margin-left: 8px;
-    }
-
-    .thinking {
-      display: flex;
-      gap: 4px;
-      padding: 12px 16px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      background: #00d4ff;
-      border-radius: 50%;
-      animation: bounce 1.4s infinite;
-    }
-
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); opacity: 0.5; }
-      50% { transform: translateY(-8px); opacity: 1; }
-    }
-
-    /* ========== INPUT ========== */
-    .input-section {
-      padding: 16px 24px 20px;
-      border-top: 1px solid #333;
-    }
-
-    .input-field {
-      width: 100%;
-      background: #252525;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: #e0e0e0;
-      font-size: 14px;
-      font-family: inherit;
-      resize: none;
-      max-height: 100px;
-      transition: all 200ms ease;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: #00d4ff;
-      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
-      background: #1a1a1a;
-    }
-
-    .input-field::placeholder { color: #666; }
-
-    .input-hints {
-      font-size: 11px;
-      color: #666;
-      margin-top: 8px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .hint-tag {
-      background: rgba(0, 212, 255, 0.1);
-      padding: 3px 8px;
-      border-radius: 4px;
-      color: #00d4ff;
-      cursor: pointer;
-      transition: all 200ms ease;
-    }
-
-    .hint-tag:hover {
-      background: rgba(0, 212, 255, 0.2);
-    }
-
-    .send-btn {
-      background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-      border: none;
-      color: #000;
-      padding: 10px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      text-transform: uppercase;
-      transition: all 200ms ease;
-      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
-      margin-top: 8px;
-      width: 100%;
-    }
-
-    .send-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
-    }
-
-    /* ========== MODAL ========== */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .modal.active { display: flex; }
-
-    .modal-content {
-      background: #1a1a1a;
-      border-radius: 12px;
-      border: 1px solid #333;
-      max-width: 700px;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding: 24px;
-    }
-
-    .modal-header {
-      font-size: 16px;
-      font-weight: 700;
-      color: #00d4ff;
-      margin-bottom: 16px;
-    }
-
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .stat-card {
-      background: #252525;
-      border-left: 3px solid #00d4ff;
-      padding: 12px;
-      border-radius: 6px;
-    }
-
-    .stat-label { font-size: 11px; color: #666; text-transform: uppercase; }
-    .stat-value { font-size: 18px; font-weight: 700; color: #00d4ff; margin-top: 4px; }
-
-    .learned-entry {
-      background: #252525;
-      border-left: 2px solid #00d4ff;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: #aaa;
-    }
-
-    .close-modal {
-      float: right;
-      background: #333;
-      border: none;
-      color: #aaa;
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .close-modal:hover { background: #444; color: #00d4ff; }
-
-    .btn-group {
-      margin-top: 16px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn-group button {
-      background: #333;
-      border: none;
-      color: #aaa;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 200ms ease;
-    }
-
-    .btn-group button:hover { background: #444; color: #00d4ff; }
-
-    @media (max-width: 768px) {
-      .app-container { flex-direction: column; }
-      .context-panel { width: 100%; height: auto; max-height: 150px; border-bottom: 1px solid #333; }
-      .msg-bubble { max-width: 85%; }
-    }
-
-    @media (max-width: 600px) {
-      .context-panel { display: none; }
-      .msg-bubble { max-width: 90%; font-size: 13px; }
-      .chat-header { padding: 12px 16px; }
-      .messages-container { padding: 16px; }
-      .input-section { padding: 12px 16px; }
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #00d4ff;
-    }
+    /* Accessibility focus */
+    .btn:focus,.send:focus,.input:focus{outline:2px solid rgba(0,0,0,0.06);box-shadow:0 0 0 4px rgba(0,212,255,0.06)}
   </style>
 </head>
-<body>
-  <div class="app-container">
-    <!-- SIDEBAR -->
-    <div class="context-panel">
-      <!-- SVRE LOGO HEADER -->
-      <div class="logo-header">
-        <div class="logo-icon">S</div>
-        <div class="logo-text">
-          <div class="logo-text-main">SVRE</div>
-          <div class="logo-text-sub">Groups</div>
+<body data-theme="dark">
+  <div id="app">
+    <div class="frame" role="application" aria-label="SVRE Intelligent Brain">
+      <aside class="sidebar" aria-label="Context and quick actions">
+        <div class="logo"><div class="mark">S</div><div class="txt">SVRE <div class="small">Groups</div></div></div>
+        <div class="profile" aria-hidden="false">
+          <div style="font-weight:700">SVRE Groups</div>
+          <div class="small">Packaging & Beverage — Kodangal, Telangana</div>
+          <div style="margin-top:8px" class="small">Founded 2018 • 155+ employees</div>
         </div>
-      </div>
 
-      <div class="profile-card">
-        <h3>📊 SVRE Company Overview</h3>
-        <div class="profile-info">
-          <div><strong>Founded:</strong> 2018</div>
-          <div><strong>Revenue (FY25):</strong> ₹53.6 Cr</div>
-          <div><strong>Growth:</strong> 76% CAGR</div>
-          <div><strong>Employees:</strong> 155+</div>
+        <div class="small" style="margin-top:8px">Quick Topics</div>
+        <div class="quick-grid" style="margin-top:8px">
+          <button class="btn" data-topic="company">🏢 Company</button>
+          <button class="btn" data-topic="capacity">⚡ Capacity</button>
+          <button class="btn" data-topic="products">📦 Products</button>
+          <button class="btn" data-topic="sustainability">♻️ Green</button>
         </div>
-      </div>
 
-      <div class="divider"></div>
+        <div class="footer" style="margin-top:18px">
+          <button class="btn" id="openAnalytics">📊 Analytics</button>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <button class="btn" id="themeToggle">Toggle Theme</button>
+            <button class="btn" id="clearBtn">Clear</button>
+          </div>
+        </div>
+      </aside>
 
-      <div class="section-title">Intelligence Metrics</div>
-      <div class="quick-stat">
-        <span class="quick-stat-label">Conversations</span>
-        <span class="quick-stat-value" id="msgCount">0</span>
-      </div>
-      <div class="quick-stat">
-        <span class="quick-stat-label">Confidence</span>
-        <span class="quick-stat-value" id="confidence">80%</span>
-      </div>
-      <div class="quick-stat">
-        <span class="quick-stat-label">Brain Power</span>
-        <span class="quick-stat-value" id="learning">Ready</span>
-      </div>
-      <div class="quick-stat">
-        <span class="quick-stat-label">Knowledge</span>
-        <span class="quick-stat-value" id="memory">100%</span>
-      </div>
+      <main class="main">
+        <header class="header">
+          <div class="title"><div class="pulse" aria-hidden="true"></div><div style="font-weight:700">SVRE Intelligent Brain</div></div>
+          <div class="small">Ready • Offline prototype</div>
+        </header>
 
-      <div class="section-title">Quick Topics</div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-        <button class="admin-btn" onclick="quickAsk('Tell me about SVRE\\'s products and capabilities')">📦 Products</button>
-        <button class="admin-btn" onclick="quickAsk('What is SVRE\\'s production capacity?')">⚡ Capacity</button>
-        <button class="admin-btn" onclick="quickAsk('Tell me about your facilities')">🏭 Facility</button>
-        <button class="admin-btn" onclick="quickAsk('What are your sustainability initiatives?')">♻️ Green</button>
-        <button class="admin-btn" onclick="quickAsk('Tell me about SVRE\\'s partnerships')">🤝 Partners</button>
-        <button class="admin-btn" onclick="quickAsk('What is SVRE\\'s mission and vision?')">🎯 Mission</button>
-      </div>
+        <section class="thread" id="thread" aria-live="polite" aria-atomic="false"></section>
 
-      <div class="admin-section" style="margin-top: 20px;">
-        <button class="admin-btn" onclick="openAnalytics()">📊 Analytics</button>
-        <button class="admin-btn" onclick="exportData()">📥 Export</button>
-        <button class="admin-btn" onclick="clearSession()">🗑️ Clear</button>
-      </div>
+        <div class="input-area">
+          <textarea id="input" class="input" placeholder="Ask me anything about SVRE Groups... (Enter to send, Shift+Enter for newline)" rows="1" aria-label="Message input"></textarea>
+          <button class="send" id="sendBtn">Send</button>
+        </div>
+      </main>
     </div>
 
-    <!-- MAIN CHAT -->
-    <div class="chat-main">
-      <div class="chat-header">
-        <div class="header-left">
-          <div class="status-pulse"></div>
-          <div class="chat-title">SVRE Intelligent Brain</div>
+    <div class="modal" id="analytics" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:800;color:var(--accent)">SVRE Brain Analytics</div>
+          <button class="btn" id="closeAnalytics">Close</button>
         </div>
-        <div class="header-right">
-          <select class="mode-selector" id="modeSelect" onchange="changeMode(this.value)">
-            <option value="general">General Knowledge</option>
-            <option value="company">Company Info</option>
-            <option value="products">Products & Services</option>
-            <option value="operations">Operations</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="messages-container" id="messagesContainer">
-        <div class="message assistant-msg">
-          <div class="msg-bubble">🧠 Welcome to SVRE's Intelligent Brain! I have complete knowledge of SVRE Groups - our history, products, facilities, operations, partnerships, and sustainability initiatives. Ask me anything about our company, and I'll provide detailed, intelligent responses. I learn from every conversation and improve continuously.</div>
-        </div>
-      </div>
-
-      <div class="input-section">
-        <textarea class="input-field" id="userInput" placeholder="Ask me anything about SVRE Groups, products, capacity, facilities, partnerships, sustainability..." rows="2" onkeypress="handleKeypress(event)"></textarea>
-        <div class="input-hints">
-          <span class="hint-tag" onclick="quickAsk('About SVRE company')">🏢 Company</span>
-          <span class="hint-tag" onclick="quickAsk('Production capacity')">⚙️ Capacity</span>
-          <span class="hint-tag" onclick="quickAsk('Pricing and orders')">💼 Pricing</span>
-          <span class="hint-tag" onclick="quickAsk('Sustainability')">🌱 Eco</span>
-          <span class="hint-tag" onclick="quickAsk('Partnerships')">🤝 Clients</span>
-          <span class="hint-tag" onclick="quickAsk('Contact info')">📞 Contact</span>
-        </div>
-        <button class="send-btn" onclick="sendMessage()">SEND</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ANALYTICS MODAL -->
-  <div class="modal" id="analyticsModal">
-    <div class="modal-content">
-      <button class="close-modal" onclick="closeAnalytics()">✕</button>
-      <div class="modal-header">🧠 SVRE Brain Intelligence Report</div>
-      
-      <div class="analytics-grid">
-        <div class="stat-card">
-          <div class="stat-label">Conversations</div>
-          <div class="stat-value" id="analyticsMessages">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Learning Rate</div>
-          <div class="stat-value" id="analyticsLearning">0%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Confidence</div>
-          <div class="stat-value" id="analyticsConfidence">80%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Brain Power</div>
-          <div class="stat-value" id="analyticsPower">0%</div>
-        </div>
-      </div>
-
-      <div class="modal-header" style="font-size: 14px; margin-top: 20px;">🔥 Most Asked Topics</div>
-      <div id="learnedPatterns"></div>
-
-      <div class="btn-group">
-        <button onclick="exportData()">📥 Export Conversations</button>
-        <button onclick="resetLearning()">🔄 Reset Brain</button>
-        <button onclick="closeAnalytics()">✕ Close</button>
+        <div style="margin-top:12px" id="analyticsContent"></div>
       </div>
     </div>
   </div>
 
   <script>
-    // ============== COMPREHENSIVE SVRE KNOWLEDGE BASE ==============
+    // Keep the SVRE knowledge object from main branch integrated here
     const SVRE = {
-      about: {
-        name: "SVRE Groups",
-        tagline: "Premier Packaging & Beverage Manufacturing Solutions",
-        founded: 2018,
-        headquarters: "Hyderabad, Telangana, India",
-        email: "contact@svregroups.com",
-        cin: "U74999TG2018PTC125768",
-        gst: "36ABACS6074J1Z2",
-        directors: ["Kamalanabha Chary", "Chary Bharthi"]
-      },
-      
-      company: {
-        overview: "SVRE Groups is a leading water bottle and beverage packaging manufacturer based in Hyderabad, India. Established in 2018, we've grown into a key player in the co-packaging industry with a 5-acre state-of-the-art facility and partnerships with industry giants like Tata, Reliance, and Clear Brand.",
-        
-        revenue: "₹53.6 Crores (FY 2025)",
-        growth: "76% CAGR (Year-on-Year)",
-        employees: "155+ skilled professionals",
-        classification: "Medium Enterprise (MSME)",
-        
-        mission: "To be a trusted partner in packaging excellence, combining innovation, quality, and sustainability",
-        
-        values: [
-          "Integrity in all business dealings",
-          "Professional excellence in everything we do",
-          "Customer-centric approach",
-          "Continuous improvement mindset",
-          "Environmental responsibility"
-        ],
-        
-        history: {
-          "2018": "SVRE Groups founded",
-          "2020": "Tata partnership begins - first bottling line installed",
-          "2021": "Full operational launch with single PET line",
-          "2022": "Second bottling line installed for Tata expansion",
-          "2024": "Third bottling line added for Reliance & Clear Brand",
-          "2025": "Facility expanded from 1-acre to 5-acre complex"
-        }
-      },
-      
-      products: {
-        bottling: {
-          lines: 3,
-          description: "Three advanced PET bottling lines with high-speed automated production",
-          capacity: "50,000+ units per day across all lines",
-          speed: "200-300 bottles per minute per line",
-          technology: "High-speed automated production with real-time QC",
-          features: ["Precision filling systems", "Automatic capping", "Contamination detection", "Real-time quality inspection"]
-        },
-        
-        materials: {
-          primary: [
-            "PET bottles (lightweight, durable, recyclable)",
-            "Glass bottles (premium, eco-friendly)",
-            "Custom packaging solutions"
-          ],
-          sizes: "200ml to 2L+ (fully customizable)",
-          customization: "Full branding, logo printing, custom designs available"
-        },
-        
-        waterProduction: {
-          type: "Packaged Drinking Water (Primary Brand: Represented by Co-packaging Clients)",
-          quality: "ISO certified, food-grade standard",
-          process: "Advanced micro-filtration treatment",
-          standards: "Meets all food safety & regulatory compliance"
-        }
-      },
-      
-      services: {
-        coPackaging: {
-          description: "Complete co-packaging solutions for established brands",
-          clients: [
-            { name: "Tata", since: "2020", service: "Co-packaging & bottling operations" },
-            { name: "Reliance", since: "2024", service: "Premium bottling solutions" },
-            { name: "Clear Brand", since: "2024", service: "Premium packaged water" }
-          ],
-          capabilities: [
-            "Custom production runs",
-            "Flexible arrangement options",
-            "Quality-assured delivery",
-            "Long-term partnership model"
-          ]
-        },
-        
-        warehousing: {
-          type: "Food-Grade Warehousing & Logistics",
-          temperature: "Temperature-controlled storage",
-          products: "Food & agricultural products",
-          features: ["Large-scale storage", "Proper handling", "Quality preservation"]
-        },
-        
-        maintenance: {
-          machinery: "Bottling line operation & maintenance",
-          support: "24/7 technical support available",
-          services: ["Process optimization", "Preventive maintenance", "Staff training", "Troubleshooting"]
-        }
-      },
-      
-      facilities: {
-        location: "Kodangal, Telangana, India",
-        area: "5 acres (Expanded from 1-acre facility)",
-        status: "Operational 24/7",
-        equipment: [
-          "3 advanced PET bottling lines",
-          "Automated production systems",
-          "Quality inspection systems",
-          "Temperature-controlled storage"
-        ],
-        workforce: "155+ employees, skilled operations team",
-        operations: "24/7 continuous production capability"
-      },
-      
-      capacity: {
-        daily: "50,000+ units per day",
-        production: "High-volume manufacturing capability",
-        scalability: "Flexible scaling from 10,000 to 500,000+ units per order",
-        leadTime: "Standard: 2-4 weeks (expedited options available)"
-      },
-      
-      sustainability: {
-        materials: [
-          "100% recyclable PET bottles",
-          "Glass alternatives for premium products",
-          "Biodegradable packaging research"
-        ],
-        initiatives: [
-          "Water-efficient production processes",
-          "Waste minimization programs",
-          "Carbon footprint reduction",
-          "Eco-conscious brand partnerships"
-        ],
-        goals: [
-          "Reduce plastic waste by 50% by 2030",
-          "Support circular economy principles",
-          "Invest in green technology",
-          "Partner with environmentally responsible brands"
-        ]
-      },
-      
-      pricing: {
-        model: "Volume-based competitive pricing",
-        tiers: {
-          small: "10K-50K units: Standard rate",
-          medium: "50K-200K units: 10% volume discount",
-          large: "200K+ units: Custom negotiation available"
-        },
-        factors: [
-          "Bottle size & material type",
-          "Branding & customization complexity",
-          "Delivery location & logistics",
-          "Timeline & urgency requirements"
-        ],
-        leadTime: "2-4 weeks standard (expedited available)",
-        payment: "Flexible payment terms negotiable based on volume"
-      },
-      
-      operations: {
-        quality: "ISO certified manufacturing with strict QC protocols",
-        inspection: "Real-time quality inspection at every production stage",
-        compliance: "Full food safety certification and regulatory compliance",
-        workforce: "Skilled professionals with 24/7 operational capability"
-      },
-      
-      contact: {
-        email: "contact@svregroups.com",
-        headquarters: "Flat No.402, A Block, Sri Sai Pragathi Pride, Habsiguda, Hyderabad-500007, Telangana, India",
-        responseTime: "24-48 hours",
-        availability: "24/7 operations"
-      }
+      about:{name:"SVRE Groups",tagline:"Packaging & Beverage Solutions",founded:2018,headquarters:"Hyderabad, Telangana, India",email:"contact@svregroups.com",cin:"U74999TG2018PTC125768"},
+      company:{overview:"SVRE Groups is a leading water bottle and beverage packaging manufacturer based in Hyderabad, India.",revenue:"₹53.6 Crores (FY 2025)",employees:"155+"},
+      products:{bottling:{lines:3,capacity:"50,000+ units per day"}},
+      contact:{email:"contact@svregroups.com",address:"Flat No.402, A Block, Sri Sai Pragathi Pride, Habsiguda, Hyderabad-500007"}
     };
 
-    // ============== INTELLIGENT LEARNING ENGINE ==============
-    class ChatMemorySystem {
-      constructor() {
-        this.messageHistory = [];
-        this.learnedPatterns = new Map();
-        this.intentsMap = new Map();
-        this.sessionMetrics = {
-          totalMessages: 0,
-          avgConfidence: 0.8,
-          patternsLearned: 0,
-          personalizations: 0
-        };
-        this.loadFromStorage();
-      }
-
-      extractIntent(message) {
-        const msg = message.toLowerCase();
-        const intents = {
-          company_info: ['about svre', 'company', 'who are you', 'profile', 'overview', 'founded', 'established', 'history', 'mission', 'vision', 'values'],
-          products: ['product', 'bottle', 'bottling', 'packaging', 'materials', 'water', 'beverage', 'line'],
-          capacity: ['capacity', 'production', 'volume', 'units', 'daily', 'how much', 'manufacture'],
-          pricing: ['price', 'cost', 'quote', 'billing', 'payment', 'rate', 'bulk', 'discount', 'minimum'],
-          facility: ['facility', 'location', 'plant', 'kodangal', 'area', 'acres', 'warehouse'],
-          partners: ['partner', 'client', 'tata', 'reliance', 'clear brand', 'work with', 'collaborate'],
-          sustainability: ['sustainable', 'eco', 'environment', 'green', 'carbon', 'recycle', 'plastic', 'waste'],
-          technical: ['technical', 'machine', 'troubleshoot', 'error', 'issue', 'quality', 'qc'],
-          operations: ['operation', 'operational', 'run', 'working', '24/7', 'process'],
-          contact: ['contact', 'reach', 'phone', 'email', 'address', 'how to reach', 'owner', 'director']
-        };
-
-        for (const [intent, keywords] of Object.entries(intents)) {
-          if (keywords.some(kw => msg.includes(kw))) {
-            this.intentsMap.set(intent, (this.intentsMap.get(intent) || 0) + 1);
-            return intent;
-          }
-        }
-        return 'general';
-      }
-
-      extractEntities(message) {
-        const entities = [];
-        const msg = message.toLowerCase();
-
-        const companies = ['tata', 'reliance', 'clear brand', 'svre'];
-        companies.forEach(c => {
-          if (msg.includes(c)) entities.push({ type: 'COMPANY', value: c });
-        });
-
-        const sizeMatch = message.match(/(\d+)\s*(k|l|ml|units)/i);
-        if (sizeMatch) entities.push({ type: 'SIZE', value: sizeMatch[0] });
-
-        return entities;
-      }
-
-      hashPattern(text) {
-        const str = text.toLowerCase().trim();
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        }
-        return Math.abs(hash).toString();
-      }
-
-      generateResponse(userMessage, intent) {
-        const msg = userMessage.toLowerCase();
-
-        // Company Information
-        if (intent === 'company_info' || msg.includes('about')) {
-          return `📊 **SVRE Groups - Company Overview**\n\nFoundation: Established in 2018, SVRE Groups has emerged as a leading packaging and beverage manufacturing company in Telangana, India.\n\n📈 **Key Metrics (FY 2025):**\n• Revenue: ₹53.6 Crores\n• Growth: 76% CAGR (Year-on-Year)\n• Employees: 155+ skilled professionals\n• Classification: Medium Enterprise (MSME)\n• Status: Rapidly Expanding\n\n🎯 **Mission:** To be a trusted partner in packaging excellence, combining innovation, quality, and sustainability\n\n💼 **Core Values:**\n✓ Integrity in all dealings\n✓ Professional excellence\n✓ Customer-centric approach\n✓ Continuous improvement\n✓ Environmental responsibility\n\n🏭 **Major Partnerships:** Tata (since 2020), Reliance, Clear Brand\n\nWould you like to know more about our specific products, facilities, or services?`;
-        }
-
-        if (intent === 'products' || msg.includes('product')) {
-          return `📦 **SVRE's Product & Service Portfolio**\n\n**1. PET Bottling Manufacturing**\n• 3 Advanced bottling lines (High-speed automated)\n• Production capacity: 50,000+ units/day\n• Speed: 200-300 bottles/minute per line\n• Customizable sizes: 200ml to 2L+\n• Full branding & logo customization available\n\n**2. Materials & Options**\n✓ PET bottles (recyclable, lightweight, durable)\n✓ Glass bottles (premium, eco-friendly alternative)\n✓ Custom packaging solutions\n✓ 100% recyclable materials\n\n**3. Co-Packaging Services**\nComplete packaging solutions for major brands:\n• Tata (since 2020)\n• Reliance \n• Clear Brand\n\n**4. Warehousing Solutions**\n• Food-grade storage facilities\n• Temperature-controlled warehousing\n• Large-scale logistics capabilities\n\n**5. Machinery Maintenance**\n• Bottling line operation & optimization\n• 24/7 technical support\n• Process efficiency consulting\n\nWhat specific product or service interests you?`;
-        }
-
-        if (intent === 'capacity') {
-          return `⚡ **SVRE's Production Capacity & Capabilities**\n\n**Daily Production:**\n• Total capacity: 50,000+ units/day\n• Per line speed: 200-300 bottles/minute\n• Operating status: 24/7 continuous production\n\n**Scalability:**\n• Small orders: 10,000-50,000 units\n• Medium orders: 50,000-200,000 units  \n• Large orders: 200,000+ units (custom negotiation)\n• Expedited runs: Available on request\n\n**Quality at Scale:**\n✓ Real-time quality inspection systems\n✓ ISO certified manufacturing\n✓ Contamination detection technology\n✓ Shelf-life testing capabilities\n\n**Lead Times:**\n• Standard: 2-4 weeks\n• Expedited: Available for time-sensitive orders\n• Custom: Negotiable based on volume\n\n**Facility Size:**\n• 5-acre state-of-the-art complex\n• 3 operational bottling lines\n• Expanded from 1-acre facility\n\nWhat volume are you looking to manufacture?`;
-        }
-
-        if (intent === 'pricing') {
-          return `💰 **SVRE's Pricing & Ordering**\n\n**Volume-Based Pricing Model:**\n• 10K-50K units: Standard rate\n• 50K-200K units: 10% volume discount\n• 200K+ units: Custom negotiation\n\n**Factors Affecting Price:**\n1. Bottle size & material (PET vs Glass)\n2. Branding complexity & customization\n3. Delivery location & logistics costs\n4. Timeline & urgency requirements\n5. Order frequency & volume\n\n**Standard Terms:**\n• Lead time: 2-4 weeks\n• Payment: Flexible terms (negotiable)\n• Minimum order: Customizable\n• Quality guarantee: ISO certified\n\n**Process:**\n1. Submit requirements & specifications\n2. Receive custom quote within 24 hours\n3. Negotiate terms if needed\n4. Place order with flexible payment\n5. Track production in real-time\n\n📧 Email: contact@svregroups.com for exact quotes\n💼 Response time: 24-48 hours\n\nWhat's your target volume and timeline?`;
-        }
-
-        if (intent === 'facility') {
-          return `🏭 **SVRE's Facility & Infrastructure**\n\n**Location:**\n📍 Kodangal, Telangana, India\n🏢 Address: Premium industrial complex\n\n**Size & Scale:**\n• Total area: 5 acres\n• Status: Expanded from 1-acre to 5-acre facility\n• Operational: 24/7 continuous production\n\n**Manufacturing Equipment:**\n✓ 3 Advanced PET bottling lines\n✓ High-speed automated production systems\n✓ Real-time quality inspection systems\n✓ Contamination detection technology\n✓ Temperature-controlled storage areas\n✓ Food-grade warehousing\n\n**Workforce:**\n• 155+ skilled professionals\n• 24/7 operational teams\n• Dedicated quality control staff\n• Customer service representatives\n\n**Capabilities:**\n• Co-packaging for major brands\n• Custom production runs\n• Food product warehousing\n• Machinery maintenance & support\n\n**Growth Timeline:**\n2020: Tata partnership established\n2021: First bottling line operational\n2022: Second line installed (Tata expansion)\n2024: Third line added (Reliance, Clear Brand)\n2025: Facility expanded to 5 acres\n\nInterested in a facility tour or partnership?`;
-        }
-
-        if (intent === 'partners') {
-          return `🤝 **SVRE's Strategic Partnerships**\n\n**Major Client Portfolio:**\n\n1️⃣ **Tata** (Since 2020)\n   • First co-packaging partner\n   • Premium bottling solutions\n   • Long-term strategic relationship\n   • Continuous capacity expansion for Tata\n\n2️⃣ **Reliance** (Since 2024)\n   • Premium water bottling solutions\n   • Large-scale production partnership\n   • Advanced quality standards\n\n3️⃣ **Clear Brand** (Since 2024)\n   • Premium packaged water brand\n   • Specialized bottling requirements\n   • Quality-focused partnership\n\n**Partnership Model:**\n✓ Flexible co-packaging arrangements\n✓ Custom production capabilities\n✓ Quality assurance guarantees\n✓ Reliable delivery timelines\n✓ Long-term strategic relationships\n✓ Dedicated account management\n\n**Why Choose SVRE as Partner:**\n✅ Proven track record with industry leaders\n✅ 3 advanced bottling lines (50,000+ units/day)\n✅ ISO certified quality standards\n✅ 24/7 operational capability\n✅ Competitive volume-based pricing\n✅ Flexible customization options\n✅ Dedicated technical support\n\n**Interested in Partnership?**\n📧 Email: contact@svregroups.com\n📍 Location: Hyderabad, Telangana\n⏰ Response: 24-48 hours\n\nWhat type of partnership interests you?`;
-        }
-
-        if (intent === 'sustainability') {
-          return `♻️ **SVRE's Sustainability Commitment**\n\n**Eco-Friendly Materials:**\n✓ 100% recyclable PET bottles\n✓ Glass alternatives (premium option)\n✓ Biodegradable packaging research in progress\n✓ Custom sustainable packaging solutions\n\n**Environmental Initiatives:**\n🌱 Water-efficient production processes\n🌱 Waste minimization programs\n🌱 Carbon footprint reduction efforts\n🌱 Eco-conscious brand partnerships\n🌱 Green technology investments\n\n**2030 Goals:**\n🎯 Reduce plastic waste by 50%\n🎯 Support circular economy principles\n🎯 Invest in sustainable manufacturing\n🎯 Partner exclusively with eco-conscious brands\n🎯 Zero-waste production target\n\n**Current Green Practices:**\n✓ Recyclable material sourcing\n✓ Efficient water usage systems\n✓ Waste segregation & recycling\n✓ Sustainable supplier partnerships\n✓ Employee environmental training\n\n**Why Sustainability Matters to SVRE:**\nBusiness excellence AND environmental responsibility aren't mutually exclusive. We believe profitable operations and planetary health go hand-in-hand.\n\n**For Eco-Conscious Brands:**\nWe offer specialized sustainable packaging solutions tailored to your environmental commitments.\n\n📧 Discuss green options: contact@svregroups.com\n\nHow can we help with your sustainability goals?`;
-        }
-
-        if (intent === 'technical') {
-          return `⚙️ **SVRE's Technical Support & Specifications**\n\n**Production Technology:**\n🔧 3 Advanced PET bottling lines\n🔧 High-speed automated systems\n🔧 Real-time quality inspection\n🔧 Contamination detection systems\n🔧 Precision filling & capping\n🔧 Shelf-life testing capabilities\n\n**Production Specifications:**\n• Bottle sizes: 200ml to 2L+ (customizable)\n• Speed: 200-300 bottles/minute per line\n• Materials: PET, Glass, Custom\n• Capacity: 50,000+ units/day\n• Quality: ISO certified standards\n\n**Quality Assurance:**\n✓ Real-time inspection at every stage\n✓ Contamination detection technology\n✓ Food safety certification compliance\n✓ Shelf-life & durability testing\n✓ Safety certification verification\n\n**Technical Support Services:**\n📞 Machinery operation optimization\n📞 Process efficiency improvements\n📞 Troubleshooting & problem-solving\n📞 Staff training & certification\n📞 Preventive maintenance programs\n📞 24/7 technical assistance\n\n**Compliance & Standards:**\n✅ ISO certified manufacturing\n✅ Food safety regulations\n✅ Environmental compliance\n✅ Quality control protocols\n✅ Safety standards adherence\n\n**Need Technical Assistance?**\n📧 contact@svregroups.com\n⏰ 24/7 support available\n🎯 Response: Within 2-4 hours\n\nWhat technical challenge can we help solve?`;
-        }
-
-        if (intent === 'contact') {
-          return `📞 **SVRE Contact Information**\n\n**Email:**\n📧 contact@svregroups.com\n✓ Response time: 24-48 hours\n\n**Headquarters:**\n📍 Flat No.402, A Block, Sri Sai Pragathi Pride\n📍 Habsiguda, Hyderabad-500007, Telangana, India\n\n**Directors:**\n👤 Kamalanabha Chary\n👤 Chary Bharthi\n\n**Company Details:**\n🔹 CIN: U74999TG2018PTC125768\n🔹 GST: 36ABACS6074J1Z2\n🔹 Founded: 2018\n\n**Operational Hours:**\n⏰ 24/7 Production Operations\n⏰ Business inquiries: Monday-Friday\n⏰ Emergency support: Always available\n\n**For Different Inquiries:**\n🏢 Company info: contact@svregroups.com\n📦 Product queries: contact@svregroups.com\n💼 Bulk orders: contact@svregroups.com (Sales)\n🔧 Technical issues: contact@svregroups.com (Operations)\n🤝 Partnerships: contact@svregroups.com (Business Dev)\n\n**What would you like to discuss?**\nReach out with your specific needs, and our team will connect you with the right department!`;
-        }
-
-        return `✨ **How I Can Help You**\n\nI'm SVRE's intelligent brain with complete knowledge of:\n\n📊 **Company Information**\n• History, mission, vision & values\n• Revenue, growth & employee data\n• Organizational structure\n\n📦 **Products & Services**\n• Bottling capabilities (3 lines, 50K+ units/day)\n• Co-packaging solutions\n• Warehousing & logistics\n• Machinery maintenance\n\n💼 **Business Operations**\n• Production capacity & scalability\n• Pricing models & volume discounts\n• Lead times & delivery\n• Quality standards & certifications\n\n🏭 **Facilities & Infrastructure**\n• 5-acre Kodangal facility\n• Equipment & technology\n• 24/7 operational capability\n\n🤝 **Strategic Partnerships**\n• Tata, Reliance, Clear Brand\n• Co-packaging arrangements\n• Long-term relationships\n\n♻️ **Sustainability Initiatives**\n• Eco-friendly materials\n• Environmental commitments\n• Green technology investments\n\n**What specific information would you like?**`;
-      }
-
-      storeMessage(sender, content, intent, confidence, isLearned) {
-        const message = {
-          id: `msg-${Date.now()}`,
-          sender,
-          content,
-          timestamp: new Date().toISOString(),
-          intent,
-          confidence,
-          isLearned
-        };
-
-        this.messageHistory.push(message);
-        this.sessionMetrics.totalMessages += 1;
-        this.sessionMetrics.avgConfidence = 
-          (this.sessionMetrics.avgConfidence * (this.messageHistory.length - 1) + confidence) / 
-          this.messageHistory.length;
-
-        return message;
-      }
-
-      learnPattern(patternHash, intent, response) {
-        const pattern = this.learnedPatterns.get(patternHash) || {
-          intent,
-          response,
-          usageCount: 0,
-          quality: 0.7
-        };
-
-        pattern.usageCount += 1;
-        pattern.quality = Math.min(1, pattern.quality + 0.05);
-        this.learnedPatterns.set(patternHash, pattern);
-
-        this.sessionMetrics.patternsLearned = this.learnedPatterns.size;
-        this.saveToStorage();
-      }
-
-      saveToStorage() {
-        const data = {
-          messageHistory: this.messageHistory.slice(-50),
-          learnedPatterns: Array.from(this.learnedPatterns.entries()),
-          sessionMetrics: this.sessionMetrics,
-          intentsMap: Array.from(this.intentsMap.entries())
-        };
-        localStorage.setItem('svreBrainMemory', JSON.stringify(data));
-      }
-
-      loadFromStorage() {
-        const saved = localStorage.getItem('svreBrainMemory');
-        if (saved) {
-          try {
-            const data = JSON.parse(saved);
-            this.messageHistory = data.messageHistory || [];
-            this.learnedPatterns = new Map(data.learnedPatterns || []);
-            this.sessionMetrics = data.sessionMetrics || this.sessionMetrics;
-            this.intentsMap = new Map(data.intentsMap || []);
-          } catch (e) {
-            console.log('Loading fresh');
-          }
-        }
-      }
-
-      getTopics() {
-        const sorted = Array.from(this.intentsMap.entries())
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5);
-        return sorted;
-      }
-
-      clear() {
-        this.messageHistory = [];
-        this.learnedPatterns.clear();
-        this.intentsMap.clear();
-        this.sessionMetrics = {
-          totalMessages: 0,
-          avgConfidence: 0.8,
-          patternsLearned: 0,
-          personalizations: 0
-        };
-        localStorage.removeItem('svreBrainMemory');
-      }
+    // Lightweight memory & response system (keeps behaviour from main branch)
+    class Memory {
+      constructor(){this.history = JSON.parse(localStorage.getItem('svre_history')||'[]')}
+      push(msg){this.history.push(msg);this._save()}
+      _save(){localStorage.setItem('svre_history',JSON.stringify(this.history.slice(-200)))}
+      clear(){this.history=[];this._save()}
     }
 
-    // ============== UI INITIALIZATION ==============
-    const memory = new ChatMemorySystem();
-    let currentMode = 'general';
+    const memory = new Memory();
+    const thread = document.getElementById('thread');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
 
-    function loadChatHistory() {
-      memory.messageHistory.forEach(msg => {
-        addMessage(msg.content, msg.sender === 'client' ? 'user' : 'assistant', msg.confidence, msg.isLearned);
-      });
-      updateMetrics();
+    function addMessage(text,role='assistant'){
+      const el = document.createElement('div');el.className='msg '+(role==='user'?'user':'assistant');el.textContent = text;thread.appendChild(el);thread.scrollTop = thread.scrollHeight - thread.clientHeight;}
+
+    // simple intent matching (keeps many intents from original file)
+    function intentOf(text){const t=text.toLowerCase();if(/about|who|profile|founded|history/.test(t))return 'company';if(/product|bottle|bottling|packaging/.test(t))return 'products';if(/capacity|production|daily|units/.test(t))return 'capacity';if(/price|cost|quote/.test(t))return 'pricing';if(/contact|email|address/.test(t))return 'contact';return 'general';}
+
+    function generateReply(text){const intent=intentOf(text);switch(intent){
+      case 'company':return `📊 ${SVRE.about.name} — Established ${SVRE.about.founded}. ${SVRE.company.overview}`;
+      case 'products':return `📦 Products: ${SVRE.products.bottling.lines} PET bottling lines — Capacity: ${SVRE.products.bottling.capacity}`;
+      case 'capacity':return `⚡ Production capacity: ${SVRE.products.bottling.capacity}. Lead time typically 2-4 weeks.`;
+      case 'pricing':return `💰 Pricing: Volume-based. For quotes, contact ${SVRE.contact.email}`;
+      case 'contact':return `📞 Contact: ${SVRE.contact.email} — Address: ${SVRE.contact.address}`;
+      default: return `✨ I can help with company info, products, capacity, pricing and contact details. Try: "Tell me about SVRE"`;
+    }}
+
+    // load history
+    (function load(){memory.history.forEach(m=>addMessage(m.text,m.role))})();
+
+    function userSend(){const txt = input.value.trim();if(!txt) return;addMessage(txt,'user');memory.push({role:'user',text:txt});input.value='';
+      // bot thinking placeholder
+      const thinking = '…';addMessage(thinking,'assistant');
+      setTimeout(()=>{
+        // replace last assistant message
+        const last = Array.from(thread.querySelectorAll('.assistant')).pop();
+        const reply = generateReply(txt);
+        last.textContent = reply;memory.push({role:'assistant',text:reply});
+      },350);
     }
 
-    function addMessage(content, role, confidence = 0.8, isLearned = false) {
-      const container = document.getElementById('messagesContainer');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${role === 'user' ? 'user-msg' : 'assistant-msg'}`;
+    sendBtn.addEventListener('click',userSend);
+    input.addEventListener('keydown', (e)=>{if(e.key==='Enter' && !e.shiftKey){e.preventDefault();userSend()}});
 
-      let html = `<div class="msg-bubble">${escapeHtml(content)}`;
-      
-      if (role === 'assistant') {
-        const badge = isLearned ? '🧠 Learned' : '🆕 Fresh';
-        html += `<span class="quality-badge">${badge} • ${(confidence * 100).toFixed(0)}%</span>`;
-      }
+    // quick topic buttons
+    document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',(()=>{input.value = b.getAttribute('data-topic');userSend();})))
 
-      html += '</div>';
-      msgDiv.innerHTML = html;
-      container.appendChild(msgDiv);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function addThinking() {
-      const container = document.getElementById('messagesContainer');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message assistant-msg';
-      msgDiv.innerHTML = '<div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-      container.appendChild(msgDiv);
-      container.scrollTop = container.scrollHeight;
-      return msgDiv;
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function updateMetrics() {
-      const stats = {
-        totalMessages: memory.messageHistory.length,
-        learnedPatterns: memory.learnedPatterns.size,
-        avgConfidence: memory.sessionMetrics.avgConfidence
-      };
-
-      document.getElementById('msgCount').textContent = stats.totalMessages;
-      document.getElementById('confidence').textContent = (stats.avgConfidence * 100).toFixed(0) + '%';
-      document.getElementById('learning').textContent = stats.learnedPatterns > 0 ? '✓ Active' : 'Ready';
-      
-      if (stats.learnedPatterns > 0) {
-        document.getElementById('learning').style.color = '#00ff00';
-      }
-    }
-
-    async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const userMsg = input.value.trim();
-
-      if (!userMsg) return;
-
-      addMessage(userMsg, 'user');
-      input.value = '';
-      input.style.height = 'auto';
-
-      const thinking = addThinking();
-      await new Promise(r => setTimeout(r, 600));
-
-      const intent = memory.extractIntent(userMsg);
-      const patternHash = memory.hashPattern(userMsg);
-      const learned = memory.learnedPatterns.get(patternHash);
-
-      let response;
-      let confidence = 0.8;
-      let isLearned = false;
-
-      if (learned && learned.quality > 0.7) {
-        response = learned.response;
-        confidence = learned.quality;
-        isLearned = true;
-      } else {
-        response = memory.generateResponse(userMsg, intent);
-        confidence = Math.min(0.95, 0.6 + (intent !== 'general' ? 0.25 : 0));
-        memory.learnPattern(patternHash, intent, response);
-      }
-
-      memory.storeMessage('assistant', response, intent, confidence, isLearned);
-      memory.saveToStorage();
-
-      thinking.remove();
-      addMessage(response, 'assistant', confidence, isLearned);
-      updateMetrics();
-    }
-
-    function handleKeypress(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    }
-
-    function quickAsk(question) {
-      document.getElementById('userInput').value = question;
-      document.getElementById('userInput').focus();
-    }
-
-    function changeMode(mode) {
-      currentMode = mode;
-    }
-
-    function openAnalytics() {
-      const stats = memory.getStats?.() || {
-        totalMessages: memory.messageHistory.length,
-        learnedPatterns: memory.learnedPatterns.size,
-        avgConfidence: memory.sessionMetrics.avgConfidence
-      };
-
-      document.getElementById('analyticsMessages').textContent = stats.totalMessages;
-      document.getElementById('analyticsLearning').textContent = Math.min(100, memory.learnedPatterns.size * 20) + '%';
-      document.getElementById('analyticsConfidence').textContent = (stats.avgConfidence * 100).toFixed(0) + '%';
-      document.getElementById('analyticsPower').textContent = Math.min(100, memory.messageHistory.length * 5) + '%';
-
-      const topics = memory.getTopics();
-      const topicsHtml = topics.length > 0
-        ? topics.map(([intent, count]) => 
-            `<div class="learned-entry"><strong>${intent}:</strong> Asked ${count} times</div>`
-          ).join('')
-        : '<div class="learned-entry">Gathering intelligence...</div>';
-
-      document.getElementById('learnedPatterns').innerHTML = topicsHtml;
-
-      document.getElementById('analyticsModal').classList.add('active');
-    }
-
-    function closeAnalytics() {
-      document.getElementById('analyticsModal').classList.remove('active');
-    }
-
-    function exportData() {
-      const data = {
-        timestamp: new Date().toISOString(),
-        mode: currentMode,
-        messages: memory.messageHistory,
-        learnedPatterns: Array.from(memory.learnedPatterns.entries()),
-        metrics: memory.sessionMetrics
-      };
-
-      const json = JSON.stringify(data, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `svre-brain-${Date.now()}.json`;
-      a.click();
-    }
-
-    function clearSession() {
-      if (confirm('Clear entire brain memory?')) {
-        memory.clear();
-        document.getElementById('messagesContainer').innerHTML = 
-          '<div class="message assistant-msg"><div class="msg-bubble">🧠 Brain reset! Ready to learn again. What would you like to know about SVRE?</div></div>';
-        updateMetrics();
-      }
-    }
-
-    function resetLearning() {
-      if (confirm('Reset all learned patterns?')) {
-        memory.learnedPatterns.clear();
-        memory.saveToStorage();
-        alert('Learning patterns reset');
-        openAnalytics();
-      }
-    }
-
-    window.addEventListener('load', () => {
-      loadChatHistory();
-      updateMetrics();
+    // analytics modal
+    const analytics = document.getElementById('analytics');
+    document.getElementById('openAnalytics').addEventListener('click',()=>{
+      document.getElementById('analyticsContent').textContent = `Messages: ${memory.history.length}`;analytics.classList.add('open');
     });
+    document.getElementById('closeAnalytics').addEventListener('click',()=>analytics.classList.remove('open'));
+
+    // theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click',()=>{
+      const el = document.documentElement;
+      const next = el.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      el.setAttribute('data-theme', next);
+      localStorage.setItem('svre_theme', next);
+    });
+    // restore theme
+    (function(){const t=localStorage.getItem('svre_theme')||'dark';document.documentElement.setAttribute('data-theme',t)})();
+
+    // clear storage
+    document.getElementById('clearBtn').addEventListener('click',(()=>{memory.clear();thread.innerHTML='';addMessage('🧠 Knowledge cleared (session).');}))
+
+    // Accessibility: focus input on load
+    input.focus();
+
+    // Expose a small function to download HTML for quick preview (optional)
+    function previewURL(){
+      return `https://raw.githack.com/svreadmin/Chatbot/copilot/redesign-ui/SVRE-Intelligence-With-Logo.html`;
+    }
+
+    // Save current content before unload
+    window.addEventListener('beforeunload',(()=>memory._save()));
   </script>
 </body>
 </html>
